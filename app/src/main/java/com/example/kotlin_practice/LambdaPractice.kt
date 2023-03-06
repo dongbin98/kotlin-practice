@@ -25,10 +25,41 @@ fun main() {
     println(d(5, 7))
 
     hello(10, b)
+
+    val humanList = listOf<Human>(
+        Human("동빈", 26),
+        Human("봉환", 17),
+        Human("성현", 28),
+        Human("한문", 26),
+    )
+
+    printAdults(humanList)
+
+    doSomething { println("do something") }
 }
 
 fun hello(a: Int, b: (Int) -> Int): (Int) -> Int {
     println(a)
     println(b(5))
     return b
+}
+
+class Human(val name: String, age: Int) {
+    val adult = age > 19
+}
+
+fun printAdults(human: List<Human>) {
+    human.filter { human -> human.adult}.forEach {
+        println("Name = ${it.name}")
+    }
+
+    human.filter(Human::adult).forEach {
+        println("Name = ${it.name}")
+    }
+}
+
+inline fun doSomething(body: () -> Unit) {
+    println("onPreExecute()")
+    body()
+    println("onPostExecute()")
 }

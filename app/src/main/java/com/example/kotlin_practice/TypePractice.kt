@@ -1,5 +1,7 @@
 package com.example.kotlin_practice
 
+import androidx.core.util.rangeTo
+
 fun main() {
     println(check("Hi"))
     println(check(3))
@@ -11,10 +13,22 @@ fun main() {
     println(smartCast("Hi"))
     println(smartCast(4))
     println(smartCast(true))
+
+    val numb = 1 .. 10
+    val numb2 = 1 until 10
+
+    for(n in numb) {
+        print(n)
+    }
+    println()
+
+    for(m in numb2) {
+        print(m)
+    }
 }
 
 fun check(a: Any): String {
-    // Java에서는 instanceOf, Kotlin에서는 is
+    // Java 에서 instanceOf, Kotlin 에서 is
     return when (a) {
         is String -> {
             "문자열"
