@@ -1,13 +1,16 @@
 package com.example.kotlin_practice
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.subjects.ReplaySubject
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.internal.operators.observable.ObservableTimer
 import io.reactivex.rxjava3.observables.ConnectableObservable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.AsyncSubject
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -23,7 +26,183 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 fun main() {
-    operatorExample()
+    dispatcherExample()
+}
+
+fun dispatcherExample() {
+    // Base Observable
+    // Observable은 기본적으로 subscribe하는 thread에서 동작
+/*    runBlocking {
+        val observable = Observable.just(1, 2, 3).map {
+            println("map : $it - ${Thread.currentThread().name}")
+        }
+        observable.subscribe { println("First : $it - ${Thread.currentThread().name}") }
+        println("--------------------------")
+        thread { observable.subscribe { println("Second : $it - ${Thread.currentThread().name}") } }
+        delay(1000)
+    }*/
+
+    // Various Scheduler
+/*     runBlocking {
+        val observable = Observable.just(1)
+        // Schedulers.io()
+        observable.subscribeOn(Schedulers.io())
+            .subscribe { println("io() - ${Thread.currentThread().name}") }
+        // Schedulers.computation()
+        observable.subscribeOn(Schedulers.computation())
+            .subscribe { println("computation() - ${Thread.currentThread().name}") }
+        // Schedulers.newThread()
+        observable.subscribeOn(Schedulers.newThread())
+            .subscribe { println("newThread() - ${Thread.currentThread().name}") }
+        // Schedulers.single()
+        observable.subscribeOn(Schedulers.single())
+            .subscribe { println("single() - ${Thread.currentThread().name}") }
+        // Schedulers.trampoline()
+        observable.subscribeOn(Schedulers.trampoline())
+            .subscribe { println("trampoline() - ${Thread.currentThread().name}") }
+        // Schedulers.from()
+        val executors = Executors.newFixedThreadPool(2)
+        val schedulers = Schedulers.from(executors)
+        observable.subscribeOn(schedulers)
+            .subscribe { println("from - ${Thread.currentThread().name}") }
+        delay(1000)
+    }*/
+
+    // io() vs computation() -> 둘 다 비동기 작업처리
+/*    runBlocking {
+        val observable = Observable.just(1)
+
+        println("start Schedulers.io()")
+        observable.subscribeOn(Schedulers.io()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.io() - ${Thread.currentThread().name}")
+        }
+        println("start Schedulers.computation()")
+        observable.subscribeOn(Schedulers.computation()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.computation() - ${Thread.currentThread().name}")
+        }
+        println("done")
+        delay(100)
+    }*/
+
+    // single() vs single()
+/*    runBlocking {
+        val observable = Observable.just(1, 2, 3)
+
+        println("start Schedulers.single()-#1")
+        observable.subscribeOn(Schedulers.single()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.single()-#1 - ${Thread.currentThread().name}")
+        }
+        println("start Schedulers.single()-#2")
+        observable.subscribeOn(Schedulers.single()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.single()-#2 - ${Thread.currentThread().name}")
+        }
+        println("done")
+        delay(1000)
+    }*/
+
+    // trampoline() vs trampoline()
+    /*runBlocking {
+        val observable = Observable.just(1, 2, 3)
+
+        println("start Schedulers.trampoline()-#1")
+        observable.subscribeOn(Schedulers.trampoline()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.trampoline()-#1 - ${Thread.currentThread().name}")
+        }
+        println("start Schedulers.trampoline()-#2")
+        observable.subscribeOn(Schedulers.trampoline()).subscribe {
+            runBlocking { delay(100) }
+            println("$it-Schedulers.trampoline()-#2 - ${Thread.currentThread().name}")
+        }
+        println("done")
+        delay(1000)
+    }*/
+
+    // trampoline() with interval operator
+/*    runBlocking {
+        println("start Schedulers.trampoline()")
+        val observable = Observable.interval(1, TimeUnit.SECONDS)
+        observable.subscribeOn(Schedulers.trampoline())
+            .subscribe { println(it) }
+        println("done")
+    }*/
+
+    // subscribeOn() vs observeOn()
+/*    runBlocking {
+        Observable.range(1, 5).map {
+            println("map: $it - ${Thread.currentThread().name}")
+        }.subscribeOn(Schedulers.io()).subscribe {
+            println("subscribe: $it - ${Thread.currentThread().name}")
+        }
+        delay(100)
+    }*/
+
+    /*runBlocking {
+        Observable.range(1, 3).observeOn(Schedulers.io()).map {
+            println("map-#1: $it - ${Thread.currentThread().name}")
+        }.observeOn(Schedulers.computation()).map {
+            println("map-#2: $it - ${Thread.currentThread().name}")
+        }.observeOn(Schedulers.single()).subscribe {
+            println("subscribe: $it - ${Thread.currentThread().name}")
+        }
+        delay(100)
+    }*/
+
+    // subscribeOn() + observeOn()
+    /*runBlocking {
+        println("start")
+        val observable = Observable.just(1)
+
+        observable.subscribeOn(Schedulers.io()).map {
+            println("processed : ${Thread.currentThread().name}")
+        }.observeOn(Schedulers.single()).subscribe {
+            println("subscribed : ${Thread.currentThread().name}")
+        }
+        delay(100)
+        println("end")
+    }*/
+
+    /*runBlocking {
+        println("start")
+        val observable = Observable.just(1)
+
+        observable.subscribeOn(Schedulers.io()).map {
+            println("processed : ${Thread.currentThread().name}")
+        }.observeOn(Schedulers.single()).subscribeOn(Schedulers.computation()).subscribe {
+            println("subscribed : ${Thread.currentThread().name}")
+        }
+        delay(100)
+        println("end")
+    }*/
+
+    /*runBlocking {
+        println("start")
+        val observable = Observable.just(1)
+
+        observable.subscribeOn(Schedulers.io()).map {
+            println("processed : ${Thread.currentThread().name}")
+        }.subscribeOn(Schedulers.computation()).subscribe {
+            println("subscribed : ${Thread.currentThread().name}")
+        }
+        delay(100)
+        println("end")
+    }*/
+
+    runBlocking {
+        println("start")
+        val observable = Observable.just(1)
+
+        observable.map { println("processed : ${Thread.currentThread().name}") }
+            .observeOn(Schedulers.single())
+            .subscribeOn(Schedulers.computation())
+            .subscribe { println("subscribed : ${Thread.currentThread().name}") }
+        delay(100)
+        println("end")
+    }
 }
 
 fun operatorExample() {
